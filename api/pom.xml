@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.taymyr.play</groupId>
     <artifactId>play-repository-java</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>play-repository-api-java</artifactId>
