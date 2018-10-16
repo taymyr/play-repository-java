@@ -15,7 +15,7 @@ import javax.persistence.EntityManager
 /**
  * JPA implementation of DDD repository for aggregates.
  */
-abstract class JPARepository<Aggregate : Any, Identity : Serializable>(
+abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverloads constructor(
     protected val jpaApi: JPAApi,
     protected val executionContext: DatabaseExecutionContext,
     protected val clazz: Class<out Aggregate>,
@@ -42,7 +42,12 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable>(
         execute { em -> ofNullable(em.find(clazz, id)) }
 
     override fun getAll(): CompletionStage<List<Aggregate>> = executeRO { em ->
-        em.createQuery("from ${clazz.canonicalName}", clazz).resultList
+        val criteriaBuilder = em.criteriaBuilder
+        @Suppress("UNCHECKED_CAST")
+        val criteriaQuery = criteriaBuilder.createQuery(clazz as Class<Nothing>)
+        val root = criteriaQuery.from(clazz)
+        val all = criteriaQuery.select(root)
+        em.createQuery(all).resultList
     }
 
     override fun findByIds(ids: List<Identity>): CompletionStage<List<Aggregate>> =
