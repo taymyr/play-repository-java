@@ -9,16 +9,43 @@
 
 # DDD Repository pattern for [Lagom](https://www.lagomframework.com)/[Play](https://playframework.com)
 
-This project contains only one interface `Repository` for DDD aggregate, inspired the book 
+API of library contains only one interface [Repository](https://www.javadoc.io/doc/org.taymyr.play/play-repository-api-java) for DDD aggregate, inspired the book 
 [Implementing Domain-Driven Design](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577) by Vaughn Vernon.
 
-### Implementations
+## Example
 
-* JPA
+### JPA
+
+Create the interface of repository for aggregate
+
+```java
+public interface AggregateRepository extends Repository<Aggregate, UUID> { }
+```
+
+and implement it
+
+```java
+public class AggregateRepositoryImpl extends JPARepository<Aggregate, UUID> implements AggregateRepository {
+
+    @Inject
+    public AggregateRepositoryImpl(@Nonnull JPAApi jpaApi, @Nonnull DatabaseExecutionContext executionContext) {
+        super(jpaApi, executionContext, Aggregate.class);
+    }
+
+    @Override
+    public UUID nextIdentity() {
+        return UUID.randomUUID();
+    }
+}
+```
+
+## Contributors
+
+Other persistence implementations (for _MongoDB_/_Cassandra_/_Redis_) are welcome.
 
 ## License
 
-Copyright © 2018 Digital Economy League (https://www.digitalleague.ru/).
+Copyright © Digital Economy League (https://www.digitalleague.ru/).
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
