@@ -1,6 +1,20 @@
+[![Gitter](https://img.shields.io/badge/chat-gitter-purple.svg)](https://gitter.im/taymyr/taymyr)
+[![Gitter_RU](https://img.shields.io/badge/chat-russian%20channel-purple.svg)](https://gitter.im/taymyr/taymyr_ru)
+[![codebeat badge](https://codebeat.co/badges/cc5cf8e6-0145-480e-a412-fb525adfa56b)](https://codebeat.co/projects/github-com-taymyr-play-repository-java-develop)
+[![Build Status](https://travis-ci.org/taymyr/play-repository-java.svg?branch=develop)](https://travis-ci.org/taymyr/play-repository-java)
+[![Javadocs](https://www.javadoc.io/badge/org.taymyr.play/play-repository-api-java.svg?label=JavadocAPI)](https://www.javadoc.io/doc/org.taymyr.play/play-repository-api-java)
+[![Javadocs](https://www.javadoc.io/badge/org.taymyr.play/play-repository-jpa-java.svg?label=JavadocJPA)](https://www.javadoc.io/doc/org.taymyr.play/play-repository-jpa-java)
+[![codecov](https://codecov.io/gh/taymyr/play-repository-java/branch/develop/graph/badge.svg)](https://codecov.io/gh/taymyr/play-repository-java)
+[![Maven](https://img.shields.io/maven-central/v/org.taymyr.play/play-repository-java.svg)](https://search.maven.org/search?q=a:play-repository-java%20AND%20g:org.taymyr.play)
+
 # DDD Repository pattern for [Lagom](https://www.lagomframework.com)/[Play](https://playframework.com)
 
-TODO
+This project contains only one interface `Repository` for DDD aggregate, inspired the book 
+[Implementing Domain-Driven Design](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577) by Vaughn Vernon.
+
+### Implementations
+
+* JPA
 
 ## License
 
