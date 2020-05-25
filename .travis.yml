@@ -8,31 +8,32 @@ env:
 
 cache:
   directories:
-  - $HOME/.cache
-  - $HOME/.m2
+    - $HOME/.cache
+    - $HOME/.m2
 
 script: ./mvnw verify -B -V
 
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-- cp .travis.settings.xml $HOME/.m2/settings.xml
-- echo $GPG_SECRET_KEYS | base64 --decode | gpg2 --import
+  - cp .travis.settings.xml $HOME/.m2/settings.xml
+  - echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+  - echo $GPG_SECRET_KEYS | base64 --decode | gpg2 --import --no-tty --batch --yes
 
 deploy:
-# Deploy releases
-- provider: script
-  script: ./mvnw deploy -B -V -P release
-  skip_cleanup: true
-  on:
-    tags: true
-# Deploy snapshots
-- provider: script
-  script: ./mvnw deploy -B -V
-  skip_cleanup: true
-  on:
-    branch: develop
+  # Deploy releases
+  - provider: script
+    script: ./mvnw deploy -B -V -P release
+    skip_cleanup: true
+    on:
+      tags: true
+  # Deploy snapshots
+  - provider: script
+    script: ./mvnw deploy -B -V
+    skip_cleanup: true
+    on:
+      branch: master
 
 notifications:
   webhooks:
