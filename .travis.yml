@@ -1,7 +1,10 @@
 language: java
 
+jdk:
+  - openjdk8
+
 env:
-- MAVEN_OPTS="-Dhttp.agent=Maven"
+  - MAVEN_OPTS="-Dhttp.agent=Maven"
 
 cache:
   directories:
