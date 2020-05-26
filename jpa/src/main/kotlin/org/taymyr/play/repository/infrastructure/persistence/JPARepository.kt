@@ -22,7 +22,7 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
     protected val persistenceUnitName: String = "default"
 ) : Repository<Aggregate, Identity> {
 
-    protected fun <E> transaction(function: (EntityManager) -> E): E = jpaApi.withTransaction(function)
+    protected fun <E> transaction(function: (EntityManager) -> E): E = jpaApi.withTransaction(persistenceUnitName, function)
 
     protected fun <E> readOnly(function: (EntityManager) -> E): E = jpaApi.withTransaction(persistenceUnitName, true, function)
 
