@@ -17,6 +17,7 @@ import org.taymyr.play.repository.infrastructure.persistence.UserImpl
 import org.taymyr.play.repository.infrastructure.persistence.UserRepositoryImpl
 import java.util.concurrent.ExecutionException
 import javax.inject.Inject
+import javax.persistence.PersistenceException
 
 class RepositoryTest : WordSpec() {
 
@@ -108,6 +109,37 @@ class RepositoryTest : WordSpec() {
                     }).toCompletableFuture()) {}
                 }
                 illegal.cause shouldBe beInstanceOf<IllegalArgumentException>()
+            }
+            "create 2000 new aggregates" {
+                for (i in 2000..3999) {
+                    val user = UserImpl(repository.nextIdentity(), "User-$i", "user-$i@repo.com")
+                    users.add(user)
+                }
+                for (i in 2000..3000) {
+                    whenReady(repository.create(users[i]).toCompletableFuture()) { result ->
+                        result shouldBe beInstanceOf<Done>()
+                    }
+                }
+                whenReady(repository.createAll(users.subList(3001, 4000)).toCompletableFuture()) { result ->
+                    result shouldBe beInstanceOf<Done>()
+                }
+            }
+            "throw PersistenceException for creating entity that already exists" {
+                val persistence = shouldThrow<ExecutionException> {
+                    whenReady(repository.create(UserImpl(users[2000].id, "User-1", "user-1@repo.com")).toCompletableFuture()) {}
+                }
+                persistence.cause shouldBe beInstanceOf<PersistenceException>()
+            }
+            "update for saving existing entity" {
+                val updatedFullName = users[2000].fullname + "-updated"
+                whenReady(repository
+                        .save(UserImpl(users[2000].id, updatedFullName, users[2000].email))
+                        .thenCompose { notUsed -> repository.get(users[2000].id) }
+                        .toCompletableFuture()
+                ) { user ->
+                    user.isPresent shouldBe true
+                    user.get().fullname shouldBe updatedFullName
+                }
             }
         }
     }

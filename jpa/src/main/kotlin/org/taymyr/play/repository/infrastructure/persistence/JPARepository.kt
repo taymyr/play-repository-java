@@ -67,6 +67,16 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
         Done.getInstance()
     }
 
+    override fun create(aggregate: Aggregate): CompletionStage<Done> = execute { em ->
+        em.persist(aggregate)
+        Done.getInstance()
+    }
+
+    override fun createAll(aggregates: Collection<Aggregate>): CompletionStage<Done> = execute { em ->
+        aggregates.forEach { em.persist(it) }
+        Done.getInstance()
+    }
+
     override fun save(aggregate: Aggregate): CompletionStage<Done> = execute { em ->
         em.merge(aggregate)
         Done.getInstance()

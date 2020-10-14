@@ -63,6 +63,22 @@ interface Repository<Aggregate, Identity> {
     fun removeAll(aggregates: Collection<Aggregate>): CompletionStage<Done>
 
     /**
+     * Create aggregate on the repository.
+     * @param aggregate Aggregate.
+     * @return [Done] if creation successfully. Otherwise will throw an exception.
+     * @throws Exception Any exceptions while execute a query on the database will wrapped.
+     */
+    fun create(aggregate: Aggregate): CompletionStage<Done>
+
+    /**
+     * Create aggregates on the repository.
+     * @param aggregates Aggregates.
+     * @return [Done] if creation successfully. Otherwise will throw an exception.
+     * @throws Exception Any exceptions while execute a query on the database will wrapped.
+     */
+    fun createAll(aggregates: Collection<Aggregate>): CompletionStage<Done>
+
+    /**
      * Saving aggregate on the repository.
      * @param aggregate Aggregate.
      * @return [Done] if saving successfully. Otherwise will throw an exception.
