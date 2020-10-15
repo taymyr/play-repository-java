@@ -19,7 +19,7 @@ allprojects {
 
 subprojects {
     group = "org.taymyr.play"
-    version = "0.1.0-SNAPSHOT"
+    version = "0.1.0"
 
     apply<JacocoPlugin>()
     apply<NexusPublishPlugin>()
