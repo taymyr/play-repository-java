@@ -4,33 +4,41 @@ jdk:
   - openjdk8
 
 env:
-  - MAVEN_OPTS="-Dhttp.agent=Maven"
+  - SCALA_VERSION=2.12 LAGOM_VERSION=1.5.5 PLAY_VERSION=2.7.4
+  - SCALA_VERSION=2.13 LAGOM_VERSION=1.6.4 PLAY_VERSION=2.8.2
 
+matrix:
+  fast_finish: true
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.cache
-    - $HOME/.m2
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
-script: ./mvnw verify -B -V
+install: skip
+
+script:
+  - ./gradlew clean check -PlagomVersion=$LAGOM_VERSION -PscalaBinaryVersion=$SCALA_VERSION -PplayVersion=$PLAY_VERSION
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  - cp .travis.settings.xml $HOME/.m2/settings.xml
-  - echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-  - echo $GPG_SECRET_KEYS | base64 --decode | gpg2 --import --no-tty --batch --yes
+  - echo $GPG_SECRET_KEYS | base64 --decode > $HOME/.gnupg/taymyr.gpg
 
 deploy:
   # Deploy releases
   - provider: script
-    script: ./mvnw deploy -B -V -P release
+    script: ./gradlew publishToSonatype closeAndReleaseRepository -x test -Psigning.keyId=$GPG_KEY_NAME -Psigning.password="$GPG_PASSPHRASE" -Psigning.secretKeyRingFile=$HOME/.gnupg/taymyr.gpg -PossrhUsername=$OSS_USERNAME -PossrhPassword="$OSS_PASSWORD" -PscalaBinaryVersion=$SCALA_VERSION -PlagomVersion=$LAGOM_VERSION -PplayVersion=$PLAY_VERSION
     skip_cleanup: true
     on:
       tags: true
   # Deploy snapshots
   - provider: script
-    script: ./mvnw deploy -B -V
+    script: ./gradlew publishToSonatype -x test -x sign -PossrhUsername=$OSS_USERNAME -PossrhPassword="$OSS_PASSWORD" -PscalaBinaryVersion=$SCALA_VERSION -PlagomVersion=$LAGOM_VERSION -PplayVersion=$PLAY_VERSION
     skip_cleanup: true
     on:
       branch: master
