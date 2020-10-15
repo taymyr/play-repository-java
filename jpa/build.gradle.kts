@@ -37,7 +37,7 @@ configurations {
 
 // Need for Hibernate can find persistence.xml in classpath
 sourceSets.test {
-    output.setResourcesDir(this.output.classesDirs.files.find { it.path.endsWith("kotlin/test") }!!)
+    output.setResourcesDir(this.output.classesDirs.files.find { it.path.endsWith("kotlin${File.separator}test") }!!)
 }
 
 ktlint {
