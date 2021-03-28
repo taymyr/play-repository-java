@@ -2,9 +2,11 @@ package org.taymyr.play.repository.infrastructure.persistence
 
 import akka.Done
 import org.hibernate.Session
-import org.taymyr.play.repository.domain.Repository
+import org.taymyr.play.repository.domain.Transaction
+import org.taymyr.play.repository.domain.TransactionalRepository
 import play.db.jpa.JPAApi
 import java.io.Serializable
+import java.lang.IllegalArgumentException
 import java.util.Optional
 import java.util.Optional.ofNullable
 import java.util.concurrent.CompletableFuture.supplyAsync
@@ -20,7 +22,7 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
     protected val executionContext: DatabaseExecutionContext,
     protected val clazz: Class<out Aggregate>,
     protected val persistenceUnitName: String = "default"
-) : Repository<Aggregate, Identity> {
+) : TransactionalRepository<Aggregate, Identity> {
 
     protected fun <E> transaction(function: (EntityManager) -> E): E = jpaApi.withTransaction(persistenceUnitName, function)
 
@@ -59,6 +61,11 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
         Done.getInstance()
     }
 
+    override fun remove(aggregate: Aggregate, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.remove(this, aggregate)
+    }
+
     override fun removeAll(aggregates: Collection<Aggregate>): CompletionStage<Done> = execute { em ->
         aggregates.forEach {
             if (em.contains(it)) em.remove(it)
@@ -67,9 +74,19 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
         Done.getInstance()
     }
 
+    override fun removeAll(aggregates: Collection<Aggregate>, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.remove(this, aggregates)
+    }
+
     override fun create(aggregate: Aggregate): CompletionStage<Done> = execute { em ->
         em.persist(aggregate)
         Done.getInstance()
+    }
+
+    override fun create(aggregate: Aggregate, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.create(this, aggregate)
     }
 
     override fun createAll(aggregates: Collection<Aggregate>): CompletionStage<Done> = execute { em ->
@@ -77,13 +94,30 @@ abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverl
         Done.getInstance()
     }
 
+    override fun createAll(aggregates: Collection<Aggregate>, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.create(this, aggregates)
+    }
+
     override fun save(aggregate: Aggregate): CompletionStage<Done> = execute { em ->
         em.merge(aggregate)
         Done.getInstance()
+    }
+
+    override fun save(aggregate: Aggregate, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.save(this, aggregate)
     }
 
     override fun saveAll(aggregates: Collection<Aggregate>): CompletionStage<Done> = execute { em ->
         aggregates.forEach { em.merge(it) }
         Done.getInstance()
     }
+
+    override fun saveAll(aggregates: Collection<Aggregate>, transaction: Transaction): CompletionStage<Done> {
+        if (!(transaction is JPATransaction)) throw IllegalArgumentException("transaction must be JPATransaction")
+        return transaction.save(this, aggregates)
+    }
+
+    override fun createTransaction(): Transaction = JPATransaction(jpaApi, executionContext, persistenceUnitName)
 }
