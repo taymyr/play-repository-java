@@ -8,7 +8,7 @@ object Versions {
     const val ktlint = "0.41.0"
     const val `ktlint-plugin` = "10.1.0"
     const val jacoco = "0.8.7"
-    const val kotlintest = "3.1.10"
+    const val kotest = "4.6.0"
     const val h2 = "1.4.197"
     const val `nexus-staging` = "0.21.2"
     const val `nexus-publish` = "0.4.0"

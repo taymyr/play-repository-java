@@ -25,7 +25,9 @@ dependencies {
     compileOnly("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
     implementation("org.hibernate", "hibernate-entitymanager", Versions.hibernateVersion)
 
-    testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.kotlintest)
+    testImplementation("io.kotest", "kotest-runner-junit5", Versions.kotest)
+    testImplementation("io.kotest", "kotest-assertions-core", Versions.kotest)
+    testImplementation("io.kotest", "kotest-property", Versions.kotest)
     testImplementation("com.typesafe.play", "play-test_$scalaBinaryVersion", playVersion)
     testImplementation("com.typesafe.play", "play-jdbc-evolutions_$scalaBinaryVersion", playVersion)
     testImplementation("com.h2database", "h2", Versions.h2)
