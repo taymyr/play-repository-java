@@ -17,7 +17,7 @@ compileKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=enable", "
 
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=enable", "-Xjsr305=strict")
+compileTestKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -43,7 +43,9 @@ sourceSets.test {
 ktlint {
     version.set(Versions.ktlint)
     outputToConsole.set(true)
-    reporters.set(setOf(ReporterType.CHECKSTYLE))
+    reporters {
+        reporter(ReporterType.CHECKSTYLE)
+    }
 }
 
 tasks.withType<Test> {

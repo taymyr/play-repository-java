@@ -21,13 +21,15 @@ import javax.persistence.PersistenceException
 
 class RepositoryTest : WordSpec() {
 
-    override fun listeners(): List<TestListener> = listOf(PlayListener(
-        object : AbstractModule() {
-            public override fun configure() {
-                bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
+    override fun listeners(): List<TestListener> = listOf(
+        PlayListener(
+            object : AbstractModule() {
+                public override fun configure() {
+                    bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
+                }
             }
-        }
-    ))
+        )
+    )
 
     @Inject
     lateinit var repository: UserRepository
@@ -102,11 +104,13 @@ class RepositoryTest : WordSpec() {
             }
             "throw IllegalArgumentException for unknown entity" {
                 val illegal = shouldThrow<ExecutionException> {
-                    whenReady(repository.remove(object : User {
-                        override val id: String = "1"
-                        override val fullname: String = "User"
-                        override val email: String = "user@repo.com"
-                    }).toCompletableFuture()) {}
+                    whenReady(
+                        repository.remove(object : User {
+                            override val id: String = "1"
+                            override val fullname: String = "User"
+                            override val email: String = "user@repo.com"
+                        }).toCompletableFuture()
+                    ) {}
                 }
                 illegal.cause shouldBe beInstanceOf<IllegalArgumentException>()
             }
@@ -132,9 +136,10 @@ class RepositoryTest : WordSpec() {
             }
             "update for saving existing entity" {
                 val updatedFullName = users[2000].fullname + "-updated"
-                whenReady(repository
+                whenReady(
+                    repository
                         .save(UserImpl(users[2000].id, updatedFullName, users[2000].email))
-                        .thenCompose { notUsed -> repository.get(users[2000].id) }
+                        .thenCompose { repository.get(users[2000].id) }
                         .toCompletableFuture()
                 ) { user ->
                     user.isPresent shouldBe true
