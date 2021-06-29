@@ -15,18 +15,17 @@ allprojects {
         mavenCentral()
         jcenter()
     }
+    apply<JacocoPlugin>()
+    jacoco {
+        toolVersion = Versions.jacoco
+    }
 }
 
 subprojects {
     group = "org.taymyr.play"
     version = "0.2.0-SNAPSHOT"
 
-    apply<JacocoPlugin>()
     apply<NexusPublishPlugin>()
-
-    jacoco {
-        toolVersion = Versions.jacoco
-    }
 
     nexusPublishing {
         repositories {
@@ -53,12 +52,20 @@ val jacocoAggregateReport by tasks.creating(JacocoReport::class) {
     reports {
         xml.isEnabled = true
     }
-    additionalClassDirs(files(subprojects.flatMap { project ->
-        listOf("scala", "kotlin").map { project.buildDir.path + "/classes/$it/main" }
-    }))
-    additionalSourceDirs(files(subprojects.flatMap { project ->
-        listOf("scala", "kotlin").map { project.file("src/main/$it").absolutePath }
-    }))
+    additionalClassDirs(
+        files(
+            subprojects.map { project ->
+                listOf("scala", "kotlin").map { project.buildDir.path + "/classes/$it/main" }
+            }
+        )
+    )
+    additionalSourceDirs(
+        files(
+            subprojects.map { project ->
+                listOf("scala", "kotlin").map { project.file("src/main/$it").absolutePath }
+            }
+        )
+    )
     dependsOn(jacocoAggregateMerge)
 }
 

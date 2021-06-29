@@ -1,6 +1,7 @@
 package org.taymyr.play.repository.infrastructure.persistence
 
 import org.taymyr.play.repository.domain.User
+import org.taymyr.play.repository.domain.UserKRepository
 import org.taymyr.play.repository.domain.UserRepository
 import play.db.jpa.JPAApi
 import java.util.UUID
@@ -13,6 +14,14 @@ class UserRepositoryImpl @Inject constructor(
     jpaApi: JPAApi,
     executionContext: DatabaseExecutionContext
 ) : JPARepository<User, String>(jpaApi, executionContext, UserImpl::class.java), UserRepository {
+
+    override fun nextIdentity(): String = UUID.randomUUID().toString()
+}
+
+class UserKRepositoryImpl @Inject constructor(
+    jpaApi: JPAApi,
+    executionContext: DatabaseExecutionContext
+) : KJPARepository<User, String>(jpaApi, executionContext, UserImpl::class.java), UserKRepository {
 
     override fun nextIdentity(): String = UUID.randomUUID().toString()
 }

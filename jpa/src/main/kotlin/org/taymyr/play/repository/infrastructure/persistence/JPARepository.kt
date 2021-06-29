@@ -9,28 +9,23 @@ import java.util.Optional
 import java.util.Optional.ofNullable
 import java.util.concurrent.CompletableFuture.supplyAsync
 import java.util.concurrent.CompletionStage
-import java.util.function.Supplier
 import javax.persistence.EntityManager
 
 /**
  * JPA implementation of DDD repository for aggregates.
  */
 abstract class JPARepository<Aggregate : Any, Identity : Serializable> @JvmOverloads constructor(
-    protected val jpaApi: JPAApi,
-    protected val executionContext: DatabaseExecutionContext,
-    protected val clazz: Class<out Aggregate>,
-    protected val persistenceUnitName: String = "default"
-) : Repository<Aggregate, Identity> {
-
-    protected fun <E> transaction(function: (EntityManager) -> E): E = jpaApi.withTransaction(persistenceUnitName, function)
-
-    protected fun <E> readOnly(function: (EntityManager) -> E): E = jpaApi.withTransaction(persistenceUnitName, true, function)
+    jpaApi: JPAApi,
+    executionContext: DatabaseExecutionContext,
+    clazz: Class<out Aggregate>,
+    persistenceUnitName: String = "default"
+) : JPABaseRepository<Aggregate, Identity>(jpaApi, executionContext, clazz, persistenceUnitName), Repository<Aggregate, Identity> {
 
     protected fun <E> execute(function: (EntityManager) -> E): CompletionStage<E> =
-        supplyAsync(Supplier { transaction(function) }, executionContext)
+        supplyAsync({ transaction(function) }, executionContext)
 
     protected fun <E> executeRO(function: (EntityManager) -> E): CompletionStage<E> =
-        supplyAsync(Supplier { readOnly(function) }, executionContext)
+        supplyAsync({ readOnly(function) }, executionContext)
 
     protected fun <E> executeSession(function: (Session) -> E): CompletionStage<E> =
         execute { em -> function.invoke(em.unwrap(Session::class.java)) }
