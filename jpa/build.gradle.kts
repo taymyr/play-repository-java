@@ -21,6 +21,7 @@ compileTestKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", 
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.kotlinCoroutines)
     api(project(":play-repository-api-java"))
     compileOnly("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
     implementation("org.hibernate", "hibernate-entitymanager", Versions.hibernateVersion)

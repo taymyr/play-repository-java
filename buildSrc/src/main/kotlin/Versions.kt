@@ -1,6 +1,7 @@
 @Suppress("ObjectPropertyName")
 object Versions {
     const val kotlin = "1.5.20"
+    const val kotlinCoroutines = "1.5.0"
     const val scalaBinary = "2.13"
     const val lagom = "1.6.4" // "1.5.5"
     const val play = "2.8.2"
