@@ -43,7 +43,6 @@ interface Repository<Aggregate, Identity> {
      * @return List of aggregates or an empty list if aggregates not found.
      * @throws Exception Any exceptions while execute a query on the database will wrapped.
      */
-    @JvmDefault
     fun findByIds(vararg ids: Identity): CompletionStage<List<Aggregate>> = findByIds(ids.asList())
 
     /**
