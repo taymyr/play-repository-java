@@ -2,32 +2,23 @@ package org.taymyr.play.repository.test
 
 import akka.Done
 import com.google.inject.AbstractModule
-import io.kotlintest.extensions.TestListener
-import io.kotlintest.matchers.beInstanceOf
-import io.kotlintest.matchers.collections.shouldContain
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.WordSpec
-import io.kotlintest.whenReady
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beInstanceOf
 import org.taymyr.play.repository.domain.User
 import org.taymyr.play.repository.domain.UserRepository
 import org.taymyr.play.repository.infrastructure.persistence.UserImpl
 import org.taymyr.play.repository.infrastructure.persistence.UserRepositoryImpl
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import javax.inject.Inject
 import javax.persistence.PersistenceException
 
 class RepositoryTest : WordSpec() {
-
-    override fun listeners(): List<TestListener> = listOf(PlayListener(
-        object : AbstractModule() {
-            public override fun configure() {
-                bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
-            }
-        }
-    ))
 
     @Inject
     lateinit var repository: UserRepository
@@ -35,6 +26,15 @@ class RepositoryTest : WordSpec() {
     private val users = ArrayList<UserImpl>()
 
     init {
+        listener(
+            PlayListener(
+                object : AbstractModule() {
+                    public override fun configure() {
+                        bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
+                    }
+                }
+            )
+        )
         "Repository" should {
             "save 2000 aggregates" {
                 for (i in 0..1999) {
@@ -102,11 +102,13 @@ class RepositoryTest : WordSpec() {
             }
             "throw IllegalArgumentException for unknown entity" {
                 val illegal = shouldThrow<ExecutionException> {
-                    whenReady(repository.remove(object : User {
-                        override val id: String = "1"
-                        override val fullname: String = "User"
-                        override val email: String = "user@repo.com"
-                    }).toCompletableFuture()) {}
+                    whenReady(
+                        repository.remove(object : User {
+                            override val id: String = "1"
+                            override val fullname: String = "User"
+                            override val email: String = "user@repo.com"
+                        }).toCompletableFuture()
+                    ) {}
                 }
                 illegal.cause shouldBe beInstanceOf<IllegalArgumentException>()
             }
@@ -132,9 +134,10 @@ class RepositoryTest : WordSpec() {
             }
             "update for saving existing entity" {
                 val updatedFullName = users[2000].fullname + "-updated"
-                whenReady(repository
+                whenReady(
+                    repository
                         .save(UserImpl(users[2000].id, updatedFullName, users[2000].email))
-                        .thenCompose { notUsed -> repository.get(users[2000].id) }
+                        .thenCompose { repository.get(users[2000].id) }
                         .toCompletableFuture()
                 ) { user ->
                     user.isPresent shouldBe true
@@ -143,4 +146,9 @@ class RepositoryTest : WordSpec() {
             }
         }
     }
+}
+
+private fun <A> whenReady(f: CompletableFuture<A>, test: (A) -> Unit) {
+    val a = f.get()
+    test(a)
 }

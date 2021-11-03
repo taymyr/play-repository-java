@@ -10,7 +10,7 @@ plugins {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=enable", "-Xjsr305=strict")
+compileKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -20,7 +20,9 @@ dependencies {
 ktlint {
     version.set(Versions.ktlint)
     outputToConsole.set(true)
-    reporters.set(setOf(ReporterType.CHECKSTYLE))
+    reporters {
+        reporter(ReporterType.CHECKSTYLE)
+    }
 }
 
 val sourcesJar by tasks.creating(Jar::class) {

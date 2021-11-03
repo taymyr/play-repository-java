@@ -8,8 +8,9 @@
 
 # DDD Repository pattern for [Lagom](https://www.lagomframework.com)/[Play](https://playframework.com)
 
-API of library contains only one interface [Repository](https://www.javadoc.io/doc/org.taymyr.play/play-repository-api-java) for DDD aggregate, inspired the book 
+API of library contains interface [Repository](https://www.javadoc.io/doc/org.taymyr.play/play-repository-api-java) for DDD aggregate, inspired the book 
 [Implementing Domain-Driven Design](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577) by Vaughn Vernon.
+The library also contains the [KRepository](https://www.javadoc.io/doc/org.taymyr.play/play-repository-api-java) interface for supporting [coroutines](https://kotlinlang.org/docs/coroutines-overview.html).
 
 ## Example
 
@@ -19,6 +20,10 @@ Create the interface of repository for aggregate
 
 ```java
 public interface AggregateRepository extends Repository<Aggregate, UUID> { }
+```
+
+```kotlin
+interface AggregateKRepository : KRepository<Aggregate, UUID>
 ```
 
 and implement it
@@ -36,6 +41,18 @@ public class AggregateRepositoryImpl extends JPARepository<Aggregate, UUID> impl
         return UUID.randomUUID();
     }
 }
+```
+
+```kotlin
+class AggregateKRepositoryImpl @Inject constructor(
+    jpaApi: JPAApi,
+    executionContext: DatabaseExecutionContext,
+): KJPARepository<Aggregate, UUID>(jpaApi, executionContext, Aggregate::class.java), AggregateKRepository {
+    
+    override fun nextIdentity(): UUID {
+        return UUID.randomUUID()
+    }
+} 
 ```
 
 ## Contributors
