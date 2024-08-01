@@ -13,30 +13,27 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
 tasks.compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
 }
 
 tasks.compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     api(project(":play-repository-api-java"))
-    compileOnly("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
-    implementation("org.hibernate", "hibernate-entitymanager", Versions.hibernateVersion)
+    compileOnly("org.playframework", "play-java-jpa_$scalaBinaryVersion", Versions.play)
+    implementation("org.hibernate.orm", "hibernate-core", Versions.hibernateVersion)
 
-    testImplementation("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
+    testImplementation("org.playframework", "play-java-jpa_$scalaBinaryVersion", Versions.play)
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.kotlintest)
-    testImplementation("com.typesafe.play", "play-test_$scalaBinaryVersion", playVersion)
-    testImplementation("com.typesafe.play", "play-jdbc-evolutions_$scalaBinaryVersion", playVersion)
+    testImplementation("org.playframework", "play-test_$scalaBinaryVersion", Versions.play)
+    testImplementation("org.playframework", "play-jdbc-evolutions_$scalaBinaryVersion", Versions.play)
     testImplementation("com.h2database", "h2", Versions.h2)
 }
 
@@ -61,17 +58,8 @@ val sourcesJar by tasks.creating(Jar::class) {
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
-}
-
-tasks.dokka {
-    outputFormat = "javadoc"
-    outputDirectory = "${layout.buildDirectory}/javadoc"
-    configuration {
-        jdkVersion = 8
-        reportUndocumented = false
-    }
-    impliedPlatforms = mutableListOf("JVM")
+    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+    dependsOn(tasks.dokkaJavadoc)
 }
 
 publishing {

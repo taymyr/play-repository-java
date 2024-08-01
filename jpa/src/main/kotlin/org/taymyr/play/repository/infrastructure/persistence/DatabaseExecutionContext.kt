@@ -1,6 +1,6 @@
 package org.taymyr.play.repository.infrastructure.persistence
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import scala.concurrent.ExecutionContextExecutor
 import javax.inject.Inject
 

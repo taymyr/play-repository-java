@@ -1,6 +1,6 @@
 package org.taymyr.play.repository.infrastructure.persistence
 
-import akka.Done
+import org.apache.pekko.Done
 import org.hibernate.Session
 import org.taymyr.play.repository.domain.Repository
 import play.db.jpa.JPAApi
@@ -10,7 +10,7 @@ import java.util.Optional.ofNullable
 import java.util.concurrent.CompletableFuture.supplyAsync
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
-import javax.persistence.EntityManager
+import jakarta.persistence.EntityManager
 
 /**
  * JPA implementation of DDD repository for aggregates.

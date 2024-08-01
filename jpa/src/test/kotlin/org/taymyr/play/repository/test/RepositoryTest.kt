@@ -1,6 +1,6 @@
 package org.taymyr.play.repository.test
 
-import akka.Done
+import org.apache.pekko.Done
 import com.google.inject.AbstractModule
 import io.kotlintest.extensions.TestListener
 import io.kotlintest.matchers.beInstanceOf
@@ -17,7 +17,7 @@ import org.taymyr.play.repository.infrastructure.persistence.UserImpl
 import org.taymyr.play.repository.infrastructure.persistence.UserRepositoryImpl
 import java.util.concurrent.ExecutionException
 import javax.inject.Inject
-import javax.persistence.PersistenceException
+import jakarta.persistence.PersistenceException
 
 class RepositoryTest : WordSpec() {
 
