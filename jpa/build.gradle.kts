@@ -1,6 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -8,16 +7,25 @@ plugins {
     kotlin("plugin.jpa")
     id("org.jetbrains.dokka") version Versions.dokka
     id("org.jlleitschuh.gradle.ktlint") version Versions.`ktlint-plugin`
+    `maven-publish`
     signing
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=enable", "-Xjsr305=strict")
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=enable", "-Xjsr305=strict")
+tasks.compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
+}
+
+tasks.compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -25,19 +33,11 @@ dependencies {
     compileOnly("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
     implementation("org.hibernate", "hibernate-entitymanager", Versions.hibernateVersion)
 
+    testImplementation("com.typesafe.play", "play-java-jpa_$scalaBinaryVersion", playVersion)
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.kotlintest)
     testImplementation("com.typesafe.play", "play-test_$scalaBinaryVersion", playVersion)
     testImplementation("com.typesafe.play", "play-jdbc-evolutions_$scalaBinaryVersion", playVersion)
     testImplementation("com.h2database", "h2", Versions.h2)
-}
-
-configurations {
-    testCompile.get().extendsFrom(compileOnly.get())
-}
-
-// Need for Hibernate can find persistence.xml in classpath
-sourceSets.test {
-    output.setResourcesDir(this.output.classesDirs.files.find { it.path.endsWith("kotlin${File.separator}test") }!!)
 }
 
 ktlint {
@@ -66,7 +66,7 @@ val dokkaJar by tasks.creating(Jar::class) {
 
 tasks.dokka {
     outputFormat = "javadoc"
-    outputDirectory = "$buildDir/javadoc"
+    outputDirectory = "${layout.buildDirectory}/javadoc"
     configuration {
         jdkVersion = 8
         reportUndocumented = false
@@ -87,6 +87,7 @@ publishing {
 }
 
 signing {
+    useGpgCmd()
     isRequired = isRelease
     sign(publishing.publications["maven"])
 }

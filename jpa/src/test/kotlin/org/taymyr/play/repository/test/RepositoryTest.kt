@@ -134,7 +134,7 @@ class RepositoryTest : WordSpec() {
                 val updatedFullName = users[2000].fullname + "-updated"
                 whenReady(repository
                         .save(UserImpl(users[2000].id, updatedFullName, users[2000].email))
-                        .thenCompose { notUsed -> repository.get(users[2000].id) }
+                        .thenCompose { _ -> repository.get(users[2000].id) }
                         .toCompletableFuture()
                 ) { user ->
                     user.isPresent shouldBe true
