@@ -7,6 +7,7 @@
   <persistence-unit name="defaultPersistenceUnit" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <non-jta-data-source>DefaultDS</non-jta-data-source>
+    <jar-file>build/classes/kotlin/test</jar-file>
     <properties>
       <!--<property name="hibernate.show_sql" value="true"/>-->
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>

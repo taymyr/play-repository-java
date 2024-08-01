@@ -4,7 +4,7 @@ import org.gradle.api.publish.maven.MavenPom
 object Publishing {
     val pom: (MavenPom).() -> Unit = {
         name.set("Taymyr: DDD Repository")
-        description.set("DDD Repository pattern for Lagom/Play frameworks")
+        description.set("DDD Repository pattern for Play framework")
         url.set("https://taymyr.org")
         organization {
             name.set("Digital Economy League")
