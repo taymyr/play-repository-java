@@ -10,18 +10,16 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
 tasks.compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    compileOnly("com.typesafe.play", "play-java_$scalaBinaryVersion", playVersion)
+    compileOnly("org.playframework", "play-java_$scalaBinaryVersion", Versions.play)
 }
 
 ktlint {
@@ -38,17 +36,8 @@ val sourcesJar by tasks.creating(Jar::class) {
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
-}
-
-tasks.dokka {
-    outputFormat = "javadoc"
-    outputDirectory = "${layout.buildDirectory}/javadoc"
-    configuration {
-        jdkVersion = 8
-        reportUndocumented = false
-    }
-    impliedPlatforms = mutableListOf("JVM")
+    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+    dependsOn(tasks.dokkaJavadoc)
 }
 
 publishing {
