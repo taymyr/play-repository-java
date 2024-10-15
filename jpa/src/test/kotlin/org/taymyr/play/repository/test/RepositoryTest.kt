@@ -1,6 +1,5 @@
 package org.taymyr.play.repository.test
 
-import org.apache.pekko.Done
 import com.google.inject.AbstractModule
 import io.kotlintest.extensions.TestListener
 import io.kotlintest.matchers.beInstanceOf
@@ -11,23 +10,26 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.WordSpec
 import io.kotlintest.whenReady
+import jakarta.persistence.PersistenceException
+import org.apache.pekko.Done
 import org.taymyr.play.repository.domain.User
 import org.taymyr.play.repository.domain.UserRepository
 import org.taymyr.play.repository.infrastructure.persistence.UserImpl
 import org.taymyr.play.repository.infrastructure.persistence.UserRepositoryImpl
 import java.util.concurrent.ExecutionException
 import javax.inject.Inject
-import jakarta.persistence.PersistenceException
 
 class RepositoryTest : WordSpec() {
-
-    override fun listeners(): List<TestListener> = listOf(PlayListener(
-        object : AbstractModule() {
-            public override fun configure() {
-                bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
-            }
-        }
-    ))
+    override fun listeners(): List<TestListener> =
+        listOf(
+            PlayListener(
+                object : AbstractModule() {
+                    public override fun configure() {
+                        bind(UserRepository::class.java).to(UserRepositoryImpl::class.java)
+                    }
+                },
+            ),
+        )
 
     @Inject
     lateinit var repository: UserRepository
@@ -101,13 +103,19 @@ class RepositoryTest : WordSpec() {
                 }
             }
             "throw IllegalArgumentException for unknown entity" {
-                val illegal = shouldThrow<ExecutionException> {
-                    whenReady(repository.remove(object : User {
-                        override val id: String = "1"
-                        override val fullname: String = "User"
-                        override val email: String = "user@repo.com"
-                    }).toCompletableFuture()) {}
-                }
+                val illegal =
+                    shouldThrow<ExecutionException> {
+                        whenReady(
+                            repository
+                                .remove(
+                                    object : User {
+                                        override val id: String = "1"
+                                        override val fullname: String = "User"
+                                        override val email: String = "user@repo.com"
+                                    },
+                                ).toCompletableFuture(),
+                        ) {}
+                    }
                 illegal.cause shouldBe beInstanceOf<IllegalArgumentException>()
             }
             "create 2000 new aggregates" {
@@ -125,17 +133,19 @@ class RepositoryTest : WordSpec() {
                 }
             }
             "throw PersistenceException for creating entity that already exists" {
-                val persistence = shouldThrow<ExecutionException> {
-                    whenReady(repository.create(UserImpl(users[2000].id, "User-1", "user-1@repo.com")).toCompletableFuture()) {}
-                }
+                val persistence =
+                    shouldThrow<ExecutionException> {
+                        whenReady(repository.create(UserImpl(users[2000].id, "User-1", "user-1@repo.com")).toCompletableFuture()) {}
+                    }
                 persistence.cause shouldBe beInstanceOf<PersistenceException>()
             }
             "update for saving existing entity" {
                 val updatedFullName = users[2000].fullname + "-updated"
-                whenReady(repository
+                whenReady(
+                    repository
                         .save(UserImpl(users[2000].id, updatedFullName, users[2000].email))
                         .thenCompose { _ -> repository.get(users[2000].id) }
-                        .toCompletableFuture()
+                        .toCompletableFuture(),
                 ) { user ->
                     user.isPresent shouldBe true
                     user.get().fullname shouldBe updatedFullName

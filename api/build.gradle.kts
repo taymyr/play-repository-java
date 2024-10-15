@@ -1,5 +1,3 @@
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
-
 plugins {
     kotlin("jvm")
     id("org.jetbrains.dokka") version Versions.dokka
@@ -15,7 +13,9 @@ java {
 }
 
 tasks.compileKotlin {
-    kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjvm-default=all", "-Xjsr305=strict")
+    }
 }
 
 dependencies {
@@ -24,8 +24,6 @@ dependencies {
 
 ktlint {
     version.set(Versions.ktlint)
-    outputToConsole.set(true)
-    reporters.set(setOf(ReporterType.CHECKSTYLE))
 }
 
 val sourcesJar by tasks.creating(Jar::class) {

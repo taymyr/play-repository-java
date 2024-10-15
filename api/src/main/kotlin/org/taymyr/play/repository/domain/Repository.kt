@@ -8,7 +8,6 @@ import java.util.concurrent.CompletionStage
  * DDD repository for identified aggregate.
  */
 interface Repository<Aggregate, Identity> {
-
     /**
      * Generate a new identifier.
      */

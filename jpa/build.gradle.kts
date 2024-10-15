@@ -1,7 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
-
 plugins {
     kotlin("jvm")
     kotlin("plugin.jpa")
@@ -18,11 +16,15 @@ java {
 }
 
 tasks.compileKotlin {
-    kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjvm-default=all", "-Xjsr305=strict")
+    }
 }
 
 tasks.compileTestKotlin {
-    kotlinOptions.freeCompilerArgs += listOf("-Xjvm-default=all", "-Xjsr305=strict")
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjvm-default=all", "-Xjsr305=strict")
+    }
 }
 
 dependencies {
@@ -39,8 +41,6 @@ dependencies {
 
 ktlint {
     version.set(Versions.ktlint)
-    outputToConsole.set(true)
-    reporters.set(setOf(ReporterType.CHECKSTYLE))
 }
 
 tasks.withType<Test> {
