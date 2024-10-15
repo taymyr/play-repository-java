@@ -34,10 +34,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # WA: https://github.com/actions/checkout/issues/882
+          ref: ${{ github.ref }}
+          fetch-tags: true
           # we don't know what commit the last tag was
           fetch-depth: 0
-          # WA: https://github.com/actions/checkout/issues/882
-          fetch-tags: true
 
       - uses: actions/setup-java@v4
         with:
