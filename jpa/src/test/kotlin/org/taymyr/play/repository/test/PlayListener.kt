@@ -11,21 +11,29 @@ import play.Environment
 import play.inject.guice.GuiceApplicationLoader
 import play.test.Helpers
 
-class PlayListener(private val module: Module) : TestListener {
-
+class PlayListener(
+    private val module: Module,
+) : TestListener {
     var application: Application? = null
 
-    override fun beforeSpec(description: Description, spec: Spec) {
-        val builder = GuiceApplicationLoader()
-            .builder(ApplicationLoader.Context(Environment.simple()))
-            .configure(Helpers.inMemoryDatabase() as Map<String, Any>)
-            .overrides(module)
+    override fun beforeSpec(
+        description: Description,
+        spec: Spec,
+    ) {
+        val builder =
+            GuiceApplicationLoader()
+                .builder(ApplicationLoader.Context(Environment.simple()))
+                .configure(Helpers.inMemoryDatabase() as Map<String, Any>)
+                .overrides(module)
         application = builder.build()
         Guice.createInjector(builder.applicationModule()).injectMembers(spec)
         Helpers.start(application)
     }
 
-    override fun afterSpec(description: Description, spec: Spec) {
+    override fun afterSpec(
+        description: Description,
+        spec: Spec,
+    ) {
         Helpers.stop(application)
     }
 }
